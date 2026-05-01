@@ -1,0 +1,24 @@
+import time
+import re
+
+# Load data from file
+def load_data(filename):
+    vendors = []
+    try:
+        with open(filename, "r") as file:
+            for line in file:
+                parts = line.strip().split(",")
+                if len(parts) < 7: continue 
+                vendor = {
+                    "id": parts[0],
+                    "name": parts[1],
+                    "year_week": parts[2],
+                    "vegan": int(parts[3]),
+                    "meat": int(parts[4]),
+                    "onions": float(parts[5]),
+                    "ketchup": float(parts[6])
+                }
+                vendors.append(vendor)
+    except FileNotFoundError:
+        print("Error: " + filename + " not found.")
+    return vendors
