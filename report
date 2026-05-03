@@ -22,3 +22,10 @@ def load_data(filename):
     except FileNotFoundError:
         print("Error: " + filename + " not found.")
     return vendors
+
+# FIX: Changed search target to check ["id"] instead of ["name"]
+def linear_search_unsorted(data, target_id):
+    for vendor in data:
+        if vendor["id"] == target_id:
+            return vendor
+    return None
