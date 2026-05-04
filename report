@@ -69,3 +69,41 @@ def quick_sort(data):
     left = [x for x in data[1:] if x["id"] <= pivot["id"]]
     right = [x for x in data[1:] if x["id"] > pivot["id"]]
     return quick_sort(left) + [pivot] + quick_sort(right)
+
+def measure_time(function, *args):
+    start = time.perf_counter()
+    result = function(*args)
+    end = time.perf_counter()
+    elapsed_time = round(end - start, 8)
+    print(function.__name__ + " time: " + str(elapsed_time))
+    return result
+
+def most_productive_vendor(data):
+    totals = {}
+    for v in data:
+        name = v["name"]
+        if name not in totals:
+            totals[name] = 0
+        totals[name] = totals[name] + v["vegan"] + v["meat"]
+    return max(totals, key=totals.get)
+
+def vegan_vs_meat(data):
+    v_total = 0
+    m_total = 0
+    for v in data:
+        v_total += v["vegan"]
+        m_total += v["meat"]
+    return v_total, m_total
+
+def least_ketchup(data):
+    smallest = data[0]
+    for v in data:
+        if v["ketchup"] < smallest["ketchup"]:
+            smallest = v
+    return smallest
+
+def save_results(filename, results):
+    file = open(filename, "w")
+    file.write(results)
+    file.close()
+
