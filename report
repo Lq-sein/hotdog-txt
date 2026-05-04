@@ -60,3 +60,12 @@ def bubble_sort(data):
             if data[j]["id"] > data[j + 1]["id"]:
                 data[j], data[j + 1] = data[j + 1], data[j]
     return data
+
+# FIX: Changed quick sort to sort by ["id"]
+def quick_sort(data):
+    if len(data) <= 1:
+        return data
+    pivot = data[0]
+    left = [x for x in data[1:] if x["id"] <= pivot["id"]]
+    right = [x for x in data[1:] if x["id"] > pivot["id"]]
+    return quick_sort(left) + [pivot] + quick_sort(right)
