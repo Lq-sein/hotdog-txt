@@ -29,3 +29,11 @@ def linear_search_unsorted(data, target_id):
         if vendor["id"] == target_id:
             return vendor
     return None
+
+def linear_search_sorted(data, target_id):
+    for vendor in data:
+        if vendor["id"] == target_id:
+            return vendor
+        elif vendor["id"] > target_id:
+            break 
+    return None
