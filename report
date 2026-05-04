@@ -23,6 +23,25 @@ def load_data(filename):
         print("Error: " + filename + " not found.")
     return vendors
 
+# FIX: VALIDATION
+def validate_vendor(v):
+    if not re.match(r"^[A-Z]{2}_\d{3}$", v["id"]):
+        return False, "Invalid Vendor ID: " + str(v["id"])
+    if not (2 <= len(v["name"]) <= 25):
+        return False, "Invalid Name Length: " + str(v["name"])
+    if len(v["year_week"]) != 6 or not v["year_week"].isdigit():
+        return False, "Invalid Year_Week format: " + str(v["year_week"])
+    week = int(v["year_week"][4:])
+    if week < 1 or week > 52:
+        return False, "Week out of range: " + str(week)
+    if v["vegan"] % 10 != 0 or v["meat"] % 10 != 0:
+        return False, "Hotdogs not divisible by 10"
+    if (v["onions"] * 2) % 1 != 0:
+        return False, "Onions not in 0.5kg increments"
+    if not (1 <= v["ketchup"] <= 4):
+        return False, "Ketchup must be integer 1-4"
+    return True, ""
+
 # FIX: Changed search target to check ["id"] instead of ["name"]
 def linear_search_unsorted(data, target_id):
     for vendor in data:
