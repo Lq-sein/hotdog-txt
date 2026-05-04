@@ -126,3 +126,31 @@ def save_results(filename, results):
     file.write(results)
     file.close()
 
+# MAIN PROGRAM
+all_loaded_vendors = load_data("Hotdogs (1) try 2.txt")
+
+# FIX: Added .upper() to ensure input matches Regex (AB_123) 
+target = input("Enter vendor ID to search: ").upper()
+
+vendors = []
+valid_count = 0
+invalid_count = 0
+
+print("--- Starting Validation ---")
+for v in all_loaded_vendors:
+    is_valid, error_msg = validate_vendor(v)
+    if is_valid:
+        vendors.append(v)
+        valid_count += 1
+    else:
+        invalid_count += 1
+        print("Skipping Vendor " + str(v["id"]) + ": " + error_msg)
+
+print("\nValidation Summary:")
+print("Valid records: " + str(valid_count))
+print("Invalid records: " + str(invalid_count))
+
+# FIX: Indented all analysis code to be inside this IF block 
+if len(vendors) > 0:
+
+
