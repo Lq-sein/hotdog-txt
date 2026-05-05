@@ -153,4 +153,41 @@ print("Invalid records: " + str(invalid_count))
 # FIX: Indented all analysis code to be inside this IF block 
 if len(vendors) > 0:
 
+# Sort data
+    sorted_vendors = measure_time(quick_sort, vendors.copy())
+
+    # Search
+    print("\nBinary Search Result:")
+    result = binary_search(sorted_vendors, target)
+    print(result)
+
+    # Compare searches
+    print("\nSearch Comparison:")
+    measure_time(linear_search_unsorted, vendors, target)
+    measure_time(binary_search, sorted_vendors, target)
+
+    # Compare sorting
+    print("\nSorting Comparison:")
+    measure_time(bubble_sort, vendors.copy())
+    measure_time(quick_sort, vendors.copy())
+
+    # Analysis
+    best_vendor = most_productive_vendor(vendors)
+    vegan, meat = vegan_vs_meat(vendors)
+    least = least_ketchup(vendors)
+
+    print("\nResults:")
+    print("Best vendor: " + best_vendor)
+    print("Vegan total: " + str(vegan))
+    print("Meat total: " + str(meat))
+    print("Least ketchup: " + least["name"])
+
+    # Save results
+    results = "Most productive vendor: " + best_vendor + "\n"
+    results += "Total vegan hotdogs: " + str(vegan) + "\n"
+    results += "Total meat hotdogs: " + str(meat) + "\n"
+    results += "Vendor using least ketchup: " + least["name"]
+    
+    save_results("Analysis.txt", results)
+
 
