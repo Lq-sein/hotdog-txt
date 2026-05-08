@@ -1,0 +1,193 @@
+import time
+import re
+
+# Load data from file
+def load_data(filename):
+    vendors = []
+    try:
+        with open(filename, "r") as file:
+            for line in file:
+                parts = line.strip().split(",")
+                if len(parts) < 7: continue 
+                vendor = {
+                    "id": parts[0],
+                    "name": parts[1],
+                    "year_week": parts[2],
+                    "vegan": int(parts[3]),
+                    "meat": int(parts[4]),
+                    "onions": float(parts[5]),
+                    "ketchup": float(parts[6])
+                }
+                vendors.append(vendor)
+    except FileNotFoundError:
+        print("Error: " + filename + " not found.")
+    return vendors
+
+# FIX: VALIDATION
+def validate_vendor(v):
+    if not re.match(r"^[A-Z]{2}_\d{3}$", v["id"]):
+        return False, "Invalid Vendor ID: " + str(v["id"])
+    if not (2 <= len(v["name"]) <= 25):
+        return False, "Invalid Name Length: " + str(v["name"])
+    if len(v["year_week"]) != 6 or not v["year_week"].isdigit():
+        return False, "Invalid Year_Week format: " + str(v["year_week"])
+    week = int(v["year_week"][4:])
+    if week < 1 or week > 52:
+        return False, "Week out of range: " + str(week)
+    if v["vegan"] % 10 != 0 or v["meat"] % 10 != 0:
+        return False, "Hotdogs not divisible by 10"
+    if (v["onions"] * 2) % 1 != 0:
+        return False, "Onions not in 0.5kg increments"
+    if not (1 <= v["ketchup"] <= 4):
+        return False, "Ketchup must be integer 1-4"
+    return True, ""
+
+# FIX: Changed search target to check ["id"] instead of ["name"]
+def linear_search_unsorted(data, target_id):
+    for vendor in data:
+        if vendor["id"] == target_id:
+            return vendor
+    return None
+
+def linear_search_sorted(data, target_id):
+    for vendor in data:
+        if vendor["id"] == target_id:
+            return vendor
+        elif vendor["id"] > target_id:
+            break 
+    return None
+
+# FIX: Changed binary search logic to use ["id"] to match user input
+def binary_search(data, target_id):
+    low = 0
+    high = len(data) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if data[mid]["id"] == target_id:
+            return data[mid]
+        elif data[mid]["id"] < target_id:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return None
+
+# FIX: Changed bubble sort to sort by ["id"] so Binary Search works
+def bubble_sort(data):
+    n = len(data)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if data[j]["id"] > data[j + 1]["id"]:
+                data[j], data[j + 1] = data[j + 1], data[j]
+    return data
+
+# FIX: Changed quick sort to sort by ["id"]
+def quick_sort(data):
+    if len(data) <= 1:
+        return data
+    pivot = data[0]
+    left = [x for x in data[1:] if x["id"] <= pivot["id"]]
+    right = [x for x in data[1:] if x["id"] > pivot["id"]]
+    return quick_sort(left) + [pivot] + quick_sort(right)
+
+def measure_time(function, *args):
+    start = time.perf_counter()
+    result = function(*args)
+    end = time.perf_counter()
+    elapsed_time = round(end - start, 8)
+    print(function.__name__ + " time: " + str(elapsed_time))
+    return result
+
+def most_productive_vendor(data):
+    totals = {}
+    for v in data:
+        name = v["name"]
+        if name not in totals:
+            totals[name] = 0
+        totals[name] = totals[name] + v["vegan"] + v["meat"]
+    return max(totals, key=totals.get)
+
+def vegan_vs_meat(data):
+    v_total = 0
+    m_total = 0
+    for v in data:
+        v_total += v["vegan"]
+        m_total += v["meat"]
+    return v_total, m_total
+
+def least_ketchup(data):
+    smallest = data[0]
+    for v in data:
+        if v["ketchup"] < smallest["ketchup"]:
+            smallest = v
+    return smallest
+
+def save_results(filename, results):
+    file = open(filename, "w")
+    file.write(results)
+    file.close()
+
+# MAIN PROGRAM
+all_loaded_vendors = load_data("Hotdogs (1) try 2.txt")
+
+# FIX: Added .upper() to ensure input matches Regex (AB_123) 
+target = input("Enter vendor ID to search: ").upper()
+
+vendors = []
+valid_count = 0
+invalid_count = 0
+
+print("--- Starting Validation ---")
+for v in all_loaded_vendors:
+    is_valid, error_msg = validate_vendor(v)
+    if is_valid:
+        vendors.append(v)
+        valid_count += 1
+    else:
+        invalid_count += 1
+        print("Skipping Vendor " + str(v["id"]) + ": " + error_msg)
+
+print("\nValidation Summary:")
+print("Valid records: " + str(valid_count))
+print("Invalid records: " + str(invalid_count))
+
+# FIX: Indented all analysis code to be inside this IF block 
+if len(vendors) > 0:
+
+# Sort data
+    sorted_vendors = measure_time(quick_sort, vendors.copy())
+
+    # Search
+    print("\nBinary Search Result:")
+    result = binary_search(sorted_vendors, target)
+    print(result)
+
+    # Compare searches
+    print("\nSearch Comparison:")
+    measure_time(linear_search_unsorted, vendors, target)
+    measure_time(binary_search, sorted_vendors, target)
+
+    # Compare sorting
+    print("\nSorting Comparison:")
+    measure_time(bubble_sort, vendors.copy())
+    measure_time(quick_sort, vendors.copy())
+
+    # Analysis
+    best_vendor = most_productive_vendor(vendors)
+    vegan, meat = vegan_vs_meat(vendors)
+    least = least_ketchup(vendors)
+
+    print("\nResults:")
+    print("Best vendor: " + best_vendor)
+    print("Vegan total: " + str(vegan))
+    print("Meat total: " + str(meat))
+    print("Least ketchup: " + least["name"])
+
+    # Save results
+    results = "Most productive vendor: " + best_vendor + "\n"
+    results += "Total vegan hotdogs: " + str(vegan) + "\n"
+    results += "Total meat hotdogs: " + str(meat) + "\n"
+    results += "Vendor using least ketchup: " + least["name"]
+    
+    save_results("Analysis.txt", results)
+
+
