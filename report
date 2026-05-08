@@ -5,7 +5,7 @@ import re
 def load_data(filename):
     vendors = []
     try:
-        with open(filename, "r") as file:
+        with open(filename, "r",encoding="utf-8-sig") as file:
             for line in file:
                 parts = line.strip().split(",")
                 if len(parts) < 7: continue 
@@ -162,9 +162,17 @@ if len(vendors) > 0:
     print(result)
 
     # Compare searches
-    print("\nSearch Comparison:")
-    measure_time(linear_search_unsorted, vendors, target)
-    measure_time(binary_search, sorted_vendors, target)
+    print("\n---Search performance Comparison:---")
+    result_unsorted = measure_time(linear_search_unsorted, vendors, target)
+    result_sorted_linear = measure_time(linear_search_sorted, sorted_vendors, target)
+    result_binary = measure_time(binary_search, sorted_vendors, target)
+
+    print("\nSearch Result Summary:")
+    if result_binary:
+        print("Vendor Found: " + str(result_binary))
+    else:
+        print("Status: ID '" + target + "' not found in valid records.")
+        print("Note: Performance times above represent the time taken to exhaust the search.")
 
     # Compare sorting
     print("\nSorting Comparison:")
